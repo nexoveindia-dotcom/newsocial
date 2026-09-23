@@ -149,4 +149,20 @@ object CryptoManager {
             clean
         }
     }
+
+    fun signAuditRecord(rawPayload: String): String {
+        return try {
+            val digest = MessageDigest.getInstance("SHA-256")
+            val hashBytes = digest.digest(rawPayload.toByteArray(StandardCharsets.UTF_8))
+            val hexString = StringBuilder()
+            for (b in hashBytes) {
+                val hex = Integer.toHexString(0xff and b.toInt())
+                if (hex.length == 1) hexString.append('0')
+                hexString.append(hex)
+            }
+            "sig_sha256_" + hexString.toString().take(24)
+        } catch (e: Exception) {
+            "sig_fallback_" + System.currentTimeMillis()
+        }
+    }
 }

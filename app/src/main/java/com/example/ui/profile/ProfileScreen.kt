@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.Group
 import androidx.compose.material.icons.filled.Key
@@ -232,6 +233,74 @@ fun ProfileScreen(viewModel: SocialViewModel) {
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.padding(start = 6.dp)
                         )
+                    }
+                }
+
+                // RBAC Admin Command Center Entry Button
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable { viewModel.setRoute("admin") }
+                        .testTag("open_admin_command_center_button"),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFF131722)),
+                    border = androidx.compose.foundation.BorderStroke(
+                        1.dp,
+                        Brush.horizontalGradient(listOf(AuraNeonViolet, AuraNeonCyan))
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(34.dp)
+                                    .clip(CircleShape)
+                                    .background(AuraNeonViolet.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.AdminPanelSettings,
+                                    contentDescription = null,
+                                    tint = AuraNeonCyan,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    text = "Admin Command Center",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color.White
+                                )
+                                Text(
+                                    text = "Role-Based Access Control (RBAC) Governance",
+                                    fontSize = 10.sp,
+                                    color = AuraNeonCyan
+                                )
+                            }
+                        }
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(6.dp))
+                                .background(AuraNeonViolet.copy(alpha = 0.2f))
+                                .padding(horizontal = 6.dp, vertical = 3.dp)
+                        ) {
+                            Text(
+                                text = "OPEN",
+                                fontSize = 9.sp,
+                                fontWeight = FontWeight.Black,
+                                color = AuraNeonCyan
+                            )
+                        }
                     }
                 }
             }

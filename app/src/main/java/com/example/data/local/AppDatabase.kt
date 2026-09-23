@@ -10,9 +10,13 @@ import androidx.room.RoomDatabase
         PostEntity::class,
         MessageEntity::class,
         ReelEntity::class,
-        NotificationEntity::class
+        NotificationEntity::class,
+        AdminUserRoleEntity::class,
+        AdminAuditLogEntity::class,
+        ModerationTicketEntity::class,
+        SystemConfigEntity::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -20,6 +24,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
     abstract fun reelDao(): ReelDao
     abstract fun notificationDao(): NotificationDao
+    abstract fun adminDao(): AdminDao
 
     companion object {
         @Volatile

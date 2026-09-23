@@ -45,9 +45,124 @@ data class AlgorithmSettings(
 @OptIn(ExperimentalCoroutinesApi::class)
 class SocialViewModel(application: Application) : AndroidViewModel(application) {
     val repository = SocialRepository(application)
+    val adminRepository = com.example.data.repository.AdminRepository(application)
 
     // Current User
     val currentUser: UserProfile = repository.currentUser
+
+    // RBAC Admin System State
+    val availableAdminPersonas = adminRepository.availablePersonas
+    val activeAdminPersona: StateFlow<com.example.data.rbac.AdminPersona> = adminRepository.activePersona
+    val adminUserRoles = adminRepository.allUserRoles.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+    val adminAuditLogs = adminRepository.allAuditLogs.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+    val adminTickets = adminRepository.allTickets.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+    val adminConfigs = adminRepository.allConfigs.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = emptyList()
+    )
+    val adminAccessDeniedEvent = adminRepository.accessDeniedEvent
+
+    private val _adminActionStatusMessage = MutableStateFlow<String?>(null)
+    val adminActionStatusMessage = _adminActionStatusMessage.asStateFlow()
+
+    fun dismissAdminActionStatus() {
+        _adminActionStatusMessage.value = null
+    }
+
+    fun switchAdminPersona(persona: com.example.data.rbac.AdminPersona) {
+        adminRepository.switchPersona(persona)
+        _adminActionStatusMessage.value = "Active identity switched to ${persona.name} (${persona.role.title})"
+    }
+
+    fun assignUserRole(userId: String, userName: String, newRole: com.example.data.rbac.RbacRole) {
+        viewModelScope.launch {
+            val result = adminRepository.assignUserRole(userId, userName, newRole)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun toggleUserBan(userId: String, userName: String, shouldBan: Boolean, reason: String?) {
+        viewModelScope.launch {
+            val result = adminRepository.toggleUserBan(userId, userName, shouldBan, reason)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun resolveModerationTicket(ticketId: String, newStatus: String, notes: String?) {
+        viewModelScope.launch {
+            val result = adminRepository.resolveModerationTicket(ticketId, newStatus, notes)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun quarantinePostDirectly(postId: String, reason: String) {
+        viewModelScope.launch {
+            val result = adminRepository.quarantinePostDirectly(postId, reason)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun updateSystemConfig(key: String, newValue: String) {
+        viewModelScope.launch {
+            val result = adminRepository.updateSystemConfig(key, newValue)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun rotateMasterSecurityKeys() {
+        viewModelScope.launch {
+            val result = adminRepository.rotateMasterSecurityKeys()
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
+
+    fun approveOrRejectAd(adId: String, brandName: String, isApproved: Boolean) {
+        viewModelScope.launch {
+            val result = adminRepository.approveOrRejectSponsoredAd(adId, brandName, isApproved)
+            if (result.isSuccess) {
+                _adminActionStatusMessage.value = result.getOrNull()
+            } else {
+                _adminActionStatusMessage.value = result.exceptionOrNull()?.message
+            }
+        }
+    }
 
     // Vibe filter for feed
     private val _selectedVibe = MutableStateFlow("All")
